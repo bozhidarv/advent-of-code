@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	filePath := "./assets/day1.txt"
+	filePath := "../assets/day1.txt"
 
 	fmt.Println(internal.SumCalibrationValues(filePath))
 }
