@@ -7,77 +7,75 @@ import (
 	"strings"
 )
 
+var numChecker = regexp.MustCompile(`\d+`)
+var symbolChecker = regexp.MustCompile(`[^\w\s.]`)
+
 func SumAllPartNumbers(filePath string) int {
 	items, _ := os.ReadFile(filePath)
 	lines := strings.Split(string(items), "\n")
 	lines = lines[:len(lines)-1]
 	sum := 0
 
-	symbolChecker := regexp.MustCompile(`[^\w\s.]`)
-	numChecker := regexp.MustCompile(`\d+`)
-
-	for col := range lines {
-		line := lines[col]
-		for row := 0; row < len(line); {
-			if line[row] == '.' {
-				row++
+	for row := range lines {
+		line := lines[row]
+		for col := 0; col < len(line); {
+			if line[col] == '.' {
+				col++
 				continue
 			}
-			isNumber := numChecker.MatchString(string(line[row]))
+			isNumber := numChecker.MatchString(string(line[col]))
 			if isNumber {
-				num := regexp.MustCompile(`\d+`).FindString(line[row:])
+				num := numChecker.FindString(line[col:])
 				foundConnection := CheckNumberForConnection(
-					row,
 					col,
-					row+len(num),
+					row,
+					col+len(num),
 					lines,
-					symbolChecker,
 				)
-				row += len(num)
+				col += len(num)
 				if foundConnection {
 					n, _ := strconv.Atoi(num)
 					sum += n
 				}
 				continue
 			}
-			row++
+			col++
 		}
 	}
 	return sum
 }
 
 func CheckNumberForConnection(
-	row, col, end int,
+	col, row, end int,
 	lines []string,
-	symbolChecker *regexp.Regexp,
 ) bool {
-	start := row
-	for ; row < end; row++ {
+	start := col
+	for ; col < end; col++ {
 
-		if row == start && row > 0 {
-			startChecks := (col > 0 &&
-				(symbolChecker.MatchString(string(lines[col-1][row-1])))) ||
-				(col < len(lines)-1 &&
-					symbolChecker.MatchString(string(lines[col+1][row-1]))) ||
-				symbolChecker.MatchString(string(lines[col][row-1]))
+		if col == start && col > 0 {
+			startChecks := (row > 0 &&
+				(symbolChecker.MatchString(string(lines[row-1][col-1])))) ||
+				(row < len(lines)-1 &&
+					symbolChecker.MatchString(string(lines[row+1][col-1]))) ||
+				symbolChecker.MatchString(string(lines[row][col-1]))
 			if startChecks {
 				return true
 			}
 		}
-		middleChecks := (col > 0 &&
-			(symbolChecker.MatchString(string(lines[col-1][row])))) ||
-			(col < len(lines)-1 &&
-				symbolChecker.MatchString(string(lines[col+1][row])))
+		middleChecks := (row > 0 &&
+			(symbolChecker.MatchString(string(lines[row-1][col])))) ||
+			(row < len(lines)-1 &&
+				symbolChecker.MatchString(string(lines[row+1][col])))
 		if middleChecks {
 			return true
 		}
 
-		if row == end-1 && row < len(lines[col])-1 {
-			endChecks := (col > 0 &&
-				(symbolChecker.MatchString(string(lines[col-1][row+1])))) ||
-				(col < len(lines)-1 &&
-					symbolChecker.MatchString(string(lines[col+1][row+1]))) ||
-				symbolChecker.MatchString(string(lines[col][row+1]))
+		if col == end-1 && col < len(lines[row])-1 {
+			endChecks := (row > 0 &&
+				(symbolChecker.MatchString(string(lines[row-1][col+1])))) ||
+				(row < len(lines)-1 &&
+					symbolChecker.MatchString(string(lines[row+1][col+1]))) ||
+				symbolChecker.MatchString(string(lines[row][col+1]))
 			if endChecks {
 				return true
 			}
